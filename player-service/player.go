@@ -11,9 +11,11 @@ import (
 
 type Player struct {
 	Player_id string `json:"player_id"`
+	MMR       int    `json:"mmr"`
 	Region    string `json:"region"`
-	Mmr       int64  `json:"mmr"`
-	Game_mode string `json:"game_mode"`
+	Ping      int    `json:"ping"`
+	GameMode  string `json:"game_mode"`
+	JoinedAt  int64  `json:"joined_at"`
 }
 
 var player Player
@@ -58,10 +60,9 @@ func Join_queue(ctx *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Waiting in Queue",
-		"player":  retrievedPlayer,
+		"status": "Waiting in Queue",
+		"player": retrievedPlayer,
 	})
 
 }
