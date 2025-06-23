@@ -1,0 +1,8 @@
+run-api:
+    go run cmd/api/server.go
+
+run-mm:
+    go run cmd/matchmaker/run.go
+
+run-client:
+    go run cmd/ws_client/main.go --player_id=1

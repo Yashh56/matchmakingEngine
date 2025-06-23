@@ -2,16 +2,23 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"time"
 
-	"github.com/Yashh56/matchmakingEngine/internal"
+	"github.com/Yashh56/matchmakingEngine/internal/clientSim"
 	"github.com/Yashh56/matchmakingEngine/utils"
+	"github.com/redis/go-redis/v9"
 )
 
 func main() {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1:6379",
+		Password: "",
+		DB:       0,
+	})
+	utils.SetClient(client)
+
 	fmt.Println("Yash is here")
 	player_id := flag.String("player_id", "", "Player's ID")
 	mmr := flag.Int("mmr", 0, "Player's MMR")
@@ -27,17 +34,11 @@ func main() {
 		panic("Missing required flags: player_id, mmr, region, ping, or mode")
 	}
 
-	internal.Join_Queue(*player_id, *mmr, *region, *ping, *game_mode, int(joined_at))
+	clientSim.Join_Queue(*player_id, *mmr, *region, *ping, *game_mode, int(joined_at))
 
 	var redisClient = utils.GetRedisClient()
 
 	if redisClient == nil {
 		panic("Something went wrong")
 	}
-	players, _ := redisClient.ZRange(context.Background(), "queue:solo:asia", 0, -1).Result()
-
-	for _, p := range players {
-		fmt.Println("players in queue", p)
-	}
-
 }

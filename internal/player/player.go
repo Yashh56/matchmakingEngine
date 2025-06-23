@@ -1,4 +1,4 @@
-package playerservice
+package player
 
 type Player struct {
 	Player_id string `json:"player_id"`
