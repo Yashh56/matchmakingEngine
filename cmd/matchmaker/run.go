@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	matchmakingservice "github.com/Yashh56/matchmakingEngine/matchMaking-service"
+	"github.com/Yashh56/matchmakingEngine/internal/matchmaking"
 	"github.com/Yashh56/matchmakingEngine/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -19,7 +19,7 @@ func main() {
 	})
 	utils.SetClient(client)
 	for {
-		matchmakingservice.RunMatchmaking(ctx, *utils.GetRedisClient())
+		matchmaking.RunMatchmaking(ctx, *utils.GetRedisClient())
 		fmt.Println("Live ")
 	}
 	time.Sleep(3 * time.Second)

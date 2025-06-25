@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	playerservice "github.com/Yashh56/matchmakingEngine/player-service"
+	playerService "github.com/Yashh56/matchmakingEngine/internal/player"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -19,14 +19,14 @@ func RunMatchmaking(ctx context.Context, redisClient redis.Client) {
 		matchedSet := make(map[string]bool)
 
 		for i := 0; i < len(matchCandidates); i++ {
-			var player playerservice.Player
+			var player playerService.Player
 			err := json.Unmarshal([]byte(matchCandidates[i]), &player)
 			if err != nil || matchedSet[player.Player_id] {
 				continue
 			}
 
 			for j := i + 1; j < len(matchCandidates); j++ {
-				var candidate playerservice.Player
+				var candidate playerService.Player
 				err = json.Unmarshal([]byte(matchCandidates[j]), &candidate)
 				if err != nil || matchedSet[candidate.Player_id] {
 					continue
@@ -53,7 +53,7 @@ func RunMatchmaking(ctx context.Context, redisClient redis.Client) {
 	}
 }
 
-func RemoveFromQueue(ctx context.Context, redisClient *redis.Client, p1, p2 playerservice.Player) {
+func RemoveFromQueue(ctx context.Context, redisClient *redis.Client, p1, p2 playerService.Player) {
 	queueKey := fmt.Sprintf("queue:%s:%s", p1.GameMode, p1.Region)
 
 	p1Json, err1 := json.Marshal(p1)

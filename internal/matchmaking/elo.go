@@ -7,18 +7,18 @@ import (
 	"math"
 	"time"
 
-	playerservice "github.com/Yashh56/matchmakingEngine/player-service"
+	"github.com/Yashh56/matchmakingEngine/internal/player"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
 type Match struct {
-	Id      string                 `json:"id"`
-	Players []playerservice.Player `json:"players"`
-	Region  string                 `json:"region"`
+	Id      string          `json:"id"`
+	Players []player.Player `json:"players"`
+	Region  string          `json:"region"`
 }
 
-func CanMatch(p1, p2 playerservice.Player) bool {
+func CanMatch(p1, p2 player.Player) bool {
 	if p1.Region != p2.Region {
 		fmt.Printf("[Skip] Region mismatch: %s vs %s\n", p1.Region, p2.Region)
 		return false
@@ -42,13 +42,13 @@ func CanMatch(p1, p2 playerservice.Player) bool {
 	return true
 }
 
-func FormMatch(p1, p2 playerservice.Player, redisClient *redis.Client) {
+func FormMatch(p1, p2 player.Player, redisClient *redis.Client) {
 	matchId := uuid.New().String()
 	ctx := context.Background()
 
 	match := Match{
 		Id:      matchId,
-		Players: []playerservice.Player{p1, p2},
+		Players: []player.Player{p1, p2},
 		Region:  p1.Region,
 	}
 
