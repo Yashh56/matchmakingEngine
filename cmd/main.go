@@ -3,7 +3,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"time"
 
 	"github.com/Yashh56/matchmakingEngine/internal/clientSim"
@@ -19,7 +18,6 @@ func main() {
 	})
 	utils.SetClient(client)
 
-	fmt.Println("Yash is here")
 	player_id := flag.String("player_id", "", "Player's ID")
 	mmr := flag.Int("mmr", 0, "Player's MMR")
 	region := flag.String("region", "", "Player's region")

@@ -26,6 +26,11 @@ type GameSession struct {
 func Start(ctx context.Context, rdb *redis.Client) {
 	sub := rdb.Subscribe(ctx, "matchmaking:events")
 	ch := sub.Channel()
+	clientSet, err := NewKubeClient()
+
+	if err != nil {
+		log.Fatal("Failed to create Kubernetes client:", err)
+	}
 
 	for msg := range ch {
 		var match Match
@@ -33,7 +38,27 @@ func Start(ctx context.Context, rdb *redis.Client) {
 			log.Println("❌ Invalid match payload:", err)
 			continue
 		}
-		go allocateGameServer(ctx, rdb, match)
+
+		go func(m Match) {
+			address, err := CreateGamePod(ctx, clientSet, m.Id)
+			if err != nil {
+				log.Println("❌ Pod creation failed:", err)
+				return
+			}
+			session := GameSession{
+				MatchId:   m.Id,
+				Address:   address,
+				Port:      8080,
+				SessionId: uuid.NewString(),
+			}
+			sessionData, _ := json.Marshal(session)
+			rdb.Set(ctx, "game_session"+m.Id, sessionData, 0)
+			rdb.Publish(ctx, "game:allocated", sessionData)
+			log.Printf("✅ Pod for match %s created at %s\n", m.Id, address)
+
+		}(match)
+
+		// go allocateGameServer(ctx, rdb, match)
 	}
 }
 

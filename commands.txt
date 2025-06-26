@@ -1,0 +1,9 @@
+go run ./cmd -player_id=12 -mmr=1620 -region=asia -ping=30 -mode=solo   //POST Request to API Server
+
+go run .\cmd\orchestrator\  //orchestrator service
+
+go run .\cmd\ws_client\main.go --player_id=2 //Notification service connection
+
+go run .\cmd\matchmaker\ //Matchmaking service
+
+go run .\cmd\api\ //Backend service

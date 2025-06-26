@@ -29,6 +29,18 @@ func (m *Manager) Get(id string) *websocket.Conn {
 	return m.clients[id]
 }
 
+func (m *Manager) GetAllClients() map[string]*websocket.Conn {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	// Return a copy to avoid race conditions
+	copied := make(map[string]*websocket.Conn)
+	for id, conn := range m.clients {
+		copied[id] = conn
+	}
+	return copied
+}
+
 func (m *Manager) Remove(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
