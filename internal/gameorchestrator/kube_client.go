@@ -1,15 +1,23 @@
 package gameorchestrator
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 func NewKubeClient() (*kubernetes.Clientset, error) {
-	// kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
-	config, err := clientcmd.BuildConfigFromFlags("", "C:\\Users\\yashs\\.kube\\config")
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("❌ Error loading .env file")
+	}
+
+	folder := os.Getenv("KUBECONFIG_PATH")
+
+	config, err := clientcmd.BuildConfigFromFlags("", folder)
 	if err != nil {
 		return nil, err
 	}
