@@ -65,7 +65,7 @@ Matchmaking-Engine/
 ### 2.Clone the Project
 
 ```bash
-https://github.com/Yashh56/matchmakingEngine.git
+git clone https://github.com/Yashh56/matchmakingEngine.git
 ```
 
 ### 3. Setup Kubernetes Cluster
