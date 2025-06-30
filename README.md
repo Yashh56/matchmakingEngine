@@ -3,6 +3,11 @@
 A scalable real-time matchmaking engine built using **Go**, **Redis**, **WebSockets**, and **Kubernetes** (via `kind` or `minikube`) to simulate game pod creation and player assignment in a distributed environment.
 This system mimics real-world multiplayer games' server orchestration using custom services and Kubernetes pods.
 
+
+[![Go Version](https://img.shields.io/badge/Go-1.21+-blue.svg)](https://golang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Redis](https://img.shields.io/badge/Redis-Required-red.svg)](https://redis.io)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Compatible-blue.svg)](https://kubernetes.io)
 ---
 
 ## 🚀 Features
@@ -44,9 +49,11 @@ Matchmaking-Engine/
 ├── pkg/
 │   └── clients/          # WebSocket connection manager
 ├── utils/                # Redis utils
-├── examples/             # Flow, system design notes
+├── run_server.bat        # Run the all servers simultaneously
+├── test.bat              # Make API call to Player services
 ├── README.md             # You're here
-├── .env                  # Environment configs
+├── .env.example          # Environment configs
+├── commands.txt          # All working commands
 └── go.mod / go.sum       # Go dependencies
 ```
 
@@ -114,7 +121,7 @@ go run ./cmd/orchestrator/main.go
 go run ./cmd -player_id=12 -mmr=1620 -region=asia -ping=30 -mode=solo
 
 # Start Notification WS server
-go run ./cmd/ws_client/main.go --player_id= id
+go run ./cmd/ws_client/main.go --player_id=12
 
 ```
 

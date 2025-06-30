@@ -65,6 +65,9 @@ func RemoveFromQueue(ctx context.Context, redisClient *redis.Client, p1, p2 play
 	}
 	removed, err := redisClient.ZRem(ctx, queueKey, string(p1Json), string(P2Json)).Result()
 
+	err = redisClient.Del(ctx, p1.Player_id).Err()
+	err = redisClient.Del(ctx, p2.Player_id).Err()
+
 	if err != nil {
 		fmt.Printf("[❌ ERROR] Failed to remove players from queue: %v\n", err)
 		return
