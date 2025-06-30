@@ -1,2 +1,6 @@
 .env
 examples
+benchmark.csv
+.venv
+benchmark
+scripts

@@ -97,7 +97,9 @@ go run ./cmd/matchmaker/run.go
 go run ./cmd/orchestrator/main.go
 
 ```
+
 #### OR
+
 ```bash
 # Run all the servers via .bat file
 .\run_server.bat
@@ -133,29 +135,33 @@ go run ./cmd/ws_client/main.go --player_id= id
 
 **Match Notification**
 
-```json
-{
-  "type": "match_found",
-  "match": "07f4162c-6f05-47ee-b389-b10a3d91d9bd",
-  "address": "ws://localhost:22901/ws",
-  "region": "ASIA",
-  "players": [
-    {
-      "player_id": "2",
-      "mmr": 1620,
-      "ping": 30,
-      "region": "asia",
-      "joined_at": 1750949479
-    },
-    {
-      "player_id": "10",
-      "mmr": 1620,
-      "ping": 30,
-      "region": "asia",
-      "joined_at": 1750949649
-    }
-  ]
-}
+```bash
+📨 [14:30:25] New Message Received
+────────────────────────────────────────────────────────────
+🎯 MATCH FOUND!
+
+📋 Match ID: bf93e3f1-5517-4d8f-a162-44400a40fb30
+🌐 Server: ws://localhost:22901/ws
+🗺️  Region: ASIA
+👥 Players:
+   Player 1:
+     🆔 ID: 1
+     ⭐ MMR: 1000
+     📶 Ping: 30ms
+     🎮 Mode: solo
+     🌍 Region: asia
+     ⏰ Joined: 14:30:20
+
+   Player 2:
+     🆔 ID: 3
+     ⭐ MMR: 1000
+     📶 Ping: 30ms
+     🎮 Mode: solo
+     🌍 Region: asia
+     ⏰ Joined: 14:30:24
+
+💬 Message: 🎯 You've been matched!
+────────────────────────────────────────────────────────────
 ```
 
 ---
@@ -186,36 +192,9 @@ go run ./cmd/ws_client/main.go --player_id= id
 
 ## 📸 Screenshots
 
-```
-📨 [14:30:25] New Message Received
-────────────────────────────────────────────────────────────
-🎯 MATCH FOUND!
+![benchmark test](./assets/latency-line-chart.png)
 
-📋 Match ID: bf93e3f1-5517-4d8f-a162-44400a40fb30
-🌐 Server: ws://localhost:22901/ws
-🗺️  Region: ASIA
-👥 Players:
-   Player 1:
-     🆔 ID: 1
-     ⭐ MMR: 1000
-     📶 Ping: 30ms
-     🎮 Mode: solo
-     🌍 Region: asia
-     ⏰ Joined: 14:30:20
-
-   Player 2:
-     🆔 ID: 3
-     ⭐ MMR: 1000
-     📶 Ping: 30ms
-     🎮 Mode: solo
-     🌍 Region: asia
-     ⏰ Joined: 14:30:24
-
-💬 Message: 🎯 You've been matched!
-────────────────────────────────────────────────────────────
-```
-
----
+## This chart visualizes how long each player waited before a match was successfully formed
 
 ## 🧪 License
 
