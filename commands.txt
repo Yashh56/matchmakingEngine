@@ -1,4 +1,4 @@
-go run ./cmd -player_id=12 -mmr=1620 -region=asia -ping=30 -mode=solo   //POST Request to API Server
+go run ./cmd -player_id=12 -mmr=1620 -region=asia -ping=30     //POST Request to API Server
 
 go run .\cmd\orchestrator\  //orchestrator service
 

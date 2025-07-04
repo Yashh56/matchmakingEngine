@@ -22,17 +22,17 @@ func main() {
 	mmr := flag.Int("mmr", 0, "Player's MMR")
 	region := flag.String("region", "", "Player's region")
 	ping := flag.Int("ping", 0, "Player's ping")
-	game_mode := flag.String("mode", "", "Game mode")
 
 	flag.Parse()
 
+	game_mode := "solo"
 	joined_at := time.Now().Unix()
 
-	if *player_id == "" || *region == "" || *game_mode == "" || *mmr == 0 || *ping == 0 {
+	if *player_id == "" || *region == "" || game_mode == "" || *mmr == 0 || *ping == 0 {
 		panic("Missing required flags: player_id, mmr, region, ping, or mode")
 	}
 
-	clientSim.Join_Queue(*player_id, *mmr, *region, *ping, *game_mode, int(joined_at))
+	clientSim.Join_Queue(*player_id, *mmr, *region, *ping, game_mode, int(joined_at))
 
 	var redisClient = utils.GetRedisClient()
 

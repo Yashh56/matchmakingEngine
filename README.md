@@ -118,7 +118,7 @@ go run ./cmd/orchestrator/main.go
 
 ```bash
 # POST Request to API Server
-go run ./cmd -player_id=12 -mmr=1620 -region=asia -ping=30 -mode=solo
+go run ./cmd -player_id=12 -mmr=1620 -region=asia -ping=30  
 
 # Start Notification WS server
 go run ./cmd/ws_client/main.go --player_id=12

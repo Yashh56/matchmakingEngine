@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	playerService "github.com/Yashh56/matchmakingEngine/internal/player"
@@ -11,44 +12,57 @@ import (
 )
 
 func RunMatchmaking(ctx context.Context, redisClient redis.Client) {
+	regions := []string{"asia", "europe", "na", "sa"}
+	modes := []string{"solo"}
 
 	for {
+		for _, mode := range modes {
+			for _, region := range regions {
 
-		matchCandidates, _ := redisClient.ZRange(ctx, "queue:solo:asia", 0, -1).Result()
+				queueKey := fmt.Sprintf("queue:%s:%s", mode, region)
 
-		matchedSet := make(map[string]bool)
-
-		for i := 0; i < len(matchCandidates); i++ {
-			var player playerService.Player
-			err := json.Unmarshal([]byte(matchCandidates[i]), &player)
-			if err != nil || matchedSet[player.Player_id] {
-				continue
-			}
-
-			for j := i + 1; j < len(matchCandidates); j++ {
-				var candidate playerService.Player
-				err = json.Unmarshal([]byte(matchCandidates[j]), &candidate)
-				if err != nil || matchedSet[candidate.Player_id] {
+				matchCandidates, err := redisClient.ZRange(ctx, queueKey, 0, -1).Result()
+				if err != nil {
+					log.Printf("❌ Error reading from queue %s: %v", queueKey, err)
 					continue
 				}
 
-				if CanMatch(player, candidate) {
-					// Mark as matched
-					matchedSet[player.Player_id] = true
-					matchedSet[candidate.Player_id] = true
-
-					// Form the match
-					FormMatch(player, candidate, &redisClient)
-
-					// Remove both players from Redis
-					RemoveFromQueue(ctx, &redisClient, player, candidate)
-
-					break // stop looking for a match for player i
+				if len(matchCandidates) == 0 {
+					log.Printf("ℹ️ No candidates in queue %s", queueKey)
+					continue
 				}
+
+				matchedSet := make(map[string]bool)
+
+				for i := 0; i < len(matchCandidates); i++ {
+					var player playerService.Player
+					if err := json.Unmarshal([]byte(matchCandidates[i]), &player); err != nil || matchedSet[player.Player_id] {
+						continue
+					}
+
+					for j := i + 1; j < len(matchCandidates); j++ {
+						var candidate playerService.Player
+						if err := json.Unmarshal([]byte(matchCandidates[j]), &candidate); err != nil || matchedSet[candidate.Player_id] {
+							continue
+						}
+
+						if CanMatch(player, candidate) {
+							log.Printf("✅ Match found: %s vs %s in %s (%s)", player.Player_id, candidate.Player_id, region, mode)
+
+							matchedSet[player.Player_id] = true
+							matchedSet[candidate.Player_id] = true
+
+							FormMatch(player, candidate, &redisClient)
+							RemoveFromQueue(ctx, &redisClient, player, candidate)
+
+							break
+						}
+					}
+				}
+
 			}
 		}
 
-		// Wait before next matchmaking cycle
 		time.Sleep(3 * time.Second)
 	}
 }

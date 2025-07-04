@@ -3,6 +3,7 @@ package player
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Yashh56/matchmakingEngine/utils"
@@ -44,10 +45,13 @@ func Join_queue(ctx *gin.Context) {
 	}
 
 	// 2. Add player to matchmaking queue (sorted set)
-	err = redisClient.ZAdd(ct, "queue:solo:asia", redis.Z{
+	queueKey := fmt.Sprintf("queue:%s:%s", "solo", player.Region)
+
+	err = redisClient.ZAdd(ct, queueKey, redis.Z{
 		Score:  float64(player.JoinedAt),
-		Member: playerString, // or just player.Player_id if you want to optimize storage
+		Member: playerString,
 	}).Err()
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add to queue"})
 		return
