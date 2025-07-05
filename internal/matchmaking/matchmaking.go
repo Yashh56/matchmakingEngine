@@ -68,7 +68,7 @@ func RunMatchmaking(ctx context.Context, redisClient redis.Client) {
 }
 
 func RemoveFromQueue(ctx context.Context, redisClient *redis.Client, p1, p2 playerService.Player) {
-	queueKey := fmt.Sprintf("queue:%s:%s", p1.GameMode, p1.Region)
+	queueKey := fmt.Sprintf("queue:%s:%s", "solo", p1.Region) // ← Make sure the queue key format matches where you added them.
 
 	p1Json, err1 := json.Marshal(p1)
 	P2Json, err2 := json.Marshal(p2)

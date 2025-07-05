@@ -6,64 +6,72 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Yashh56/matchmakingEngine/internal/gameorchestrator"
+	"github.com/Yashh56/matchmakingEngine/internal/player"
 	"github.com/Yashh56/matchmakingEngine/pkg/clients"
 	"github.com/redis/go-redis/v9"
 )
 
+type Match struct {
+	Id      string          `json:"Id"`
+	Players []player.Player `json:"Players"`
+	Region  string          `json:"Region"`
+}
+
 func ListenForMatches(ctx context.Context, rdb *redis.Client, manager *clients.Manager) {
-	sub := rdb.Subscribe(ctx, "game:allocated")
+	sub := rdb.Subscribe(ctx, "matchmaking:events")
+	defer sub.Close()
+
+	log.Println("[✅ LISTENER STARTED] Subscribed to 'matchmaking:events' channel")
+
 	ch := sub.Channel()
 
-	for msg := range ch {
-		var payload gameorchestrator.GameSession
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("[⚠️ LISTENER STOPPED] Context cancelled, stopping listener")
+			return
 
-		if err := json.Unmarshal([]byte(msg.Payload), &payload); err != nil {
-			log.Println("❌ Failed to parse session payload:", err)
-			continue
-		}
+		case msg, ok := <-ch:
+			if !ok {
+				log.Println("[⚠️ LISTENER STOPPED] Redis channel closed")
+				return
+			}
 
-		matchId := payload.MatchId
-		address := fmt.Sprintf("%s:%d", payload.Address, payload.Port)
-
-		// 🧠 Get full match data
-		matchJSON, err := rdb.Get(ctx, "match:"+matchId).Result()
-		if err != nil {
-			log.Printf("❌ Could not fetch match data for match %s: %v", matchId, err)
-			continue
-		}
-
-		var matchData map[string]interface{}
-		if err := json.Unmarshal([]byte(matchJSON), &matchData); err != nil {
-			log.Printf("❌ Failed to unmarshal match data for match %s: %v", matchId, err)
-			continue
-		}
-
-		// 🧩 Enrich match data with address and message
-		matchData["address"] = address
-		matchData["message"] = fmt.Sprintf("🎯 You’ve been matched!\n✅ Pod for match %s created at %s", matchId, address)
-		matchData["type"] = "match_found"
-
-		// 🎯 Get matched player IDs
-		playerIds, err := rdb.SMembers(ctx, "match_players:"+matchId).Result()
-		if err != nil {
-			log.Printf("❌ Could not get players for match %s: %v", matchId, err)
-			continue
-		}
-
-		// 📨 Send to matched players only
-		for _, playerId := range playerIds {
-			conn := manager.Get(playerId)
-			if conn == nil {
-				log.Printf("⚠️ No active WebSocket connection for player %s", playerId)
+			// Parse the match
+			var match Match
+			if err := json.Unmarshal([]byte(msg.Payload), &match); err != nil {
+				log.Printf("[❌ ERROR] Failed to parse match payload: %v", err)
 				continue
 			}
 
-			if err := conn.WriteJSON(matchData); err != nil {
-				log.Printf("❌ Failed to send match to player %s: %v", playerId, err)
-			} else {
-				log.Printf("📨 Sent full match info to player %s", playerId)
+			log.Printf("[🎯 MATCH RECEIVED] Match ID: %s | Region: %s", match.Id, match.Region)
+
+			// Build message
+			matchData := map[string]interface{}{
+				"matchId": match.Id,
+				"region":  match.Region,
+				"players": match.Players,
+				"message": fmt.Sprintf("🎯 You’ve been matched in region %s!", match.Region),
+				"type":    "match_found",
 			}
+
+			// Send match data to players
+			for _, p := range match.Players {
+				conn := manager.Get(p.Player_id)
+				if conn == nil {
+					log.Printf("[⚠️ WARNING] No active WebSocket connection for player %s", p.Player_id)
+					continue
+				}
+
+				if err := conn.WriteJSON(matchData); err != nil {
+					log.Printf("[❌ ERROR] Failed to send match to player %s: %v", p.Player_id, err)
+				} else {
+					log.Printf("[📨 SENT] Match sent to player %s", p.Player_id)
+				}
+			}
+
+			// ✅ Stop after handling one message (optional)
+			// return
 		}
 	}
 }

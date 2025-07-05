@@ -13,7 +13,6 @@ type JoinQueueResponse struct {
 	MMR      int    `json:"mmr"`
 	Region   string `json:"region"`
 	Ping     int    `json:"ping"`
-	GameMode string `json:"game_mode"`
 	JoinedAt int    `json:"joined_at"`
 }
 
@@ -22,13 +21,12 @@ type JoinQueueWrapper struct {
 	Data   JoinQueueResponse `json:"data"`
 }
 
-func Join_Queue(player_id string, mmr int, region string, ping int, game_mode string, joined_at int) {
+func Join_Queue(player_id string, mmr int, region string, ping int, joined_at int) {
 	reqBody := JoinQueueResponse{
 		PlayerID: player_id,
 		MMR:      mmr,
 		Region:   region,
 		Ping:     ping,
-		GameMode: game_mode,
 		JoinedAt: joined_at,
 	}
 	jsonData, err := json.Marshal(reqBody)

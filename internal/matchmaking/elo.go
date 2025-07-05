@@ -59,7 +59,6 @@ func FormMatch(p1, p2 player.Player, redisClient *redis.Client) {
 	}
 	redisClient.Set(ctx, "match:"+matchId, jsonData, 0)
 
-	redisClient.Publish(ctx, "matchmaking:events", jsonData)
 	redisClient.SAdd(ctx, "match_players:"+matchId, p1.Player_id, p2.Player_id)
 
 	err = redisClient.Publish(ctx, "matchmaking:events", jsonData).Err()
